@@ -1,3 +1,4 @@
+import EstimateForm from "@/components/EstimateForm";
 const features = [
   {
     title: "Insurance guidance",
@@ -262,46 +263,7 @@ export default function Home() {
             </div>
           </div>
 
-          <form className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
-            <label className="block">
-              <span className="text-sm font-medium text-blue-100">
-                I am a...
-              </span>
-
-              <select className="mt-2 w-full rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none">
-                <option>Renter</option>
-                <option>Homeowner</option>
-                <option>Sole trader</option>
-                <option>Small business owner</option>
-                <option>Landlord</option>
-              </select>
-            </label>
-
-            <label className="mt-5 block">
-              <span className="text-sm font-medium text-blue-100">
-                Describe your situation
-              </span>
-
-              <textarea
-                rows={6}
-                placeholder="Example: I run a small design business from home, meet clients occasionally, own a laptop and camera gear, and rent my apartment in Sydney."
-                className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none placeholder:text-blue-100/40"
-              />
-            </label>
-
-            <button
-              type="button"
-              className="mt-6 w-full rounded-full bg-blue-400 px-6 py-4 font-semibold text-[#07111f] transition hover:scale-[1.02] hover:bg-blue-300"
-            >
-              Generate guidance preview
-            </button>
-
-            <p className="mt-4 text-xs leading-6 text-blue-100/50">
-              This prototype provides general information only. It does not
-              provide personal financial advice, arrange insurance, or replace a
-              licensed broker or insurer.
-            </p>
-          </form>
+          <EstimateForm />
         </div>
       </section>
 
