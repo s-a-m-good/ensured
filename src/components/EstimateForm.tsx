@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   generateInsuranceSuggestions,
+  type AustralianState,
   type InsuranceSuggestion,
   type UserType,
 } from "@/lib/insuranceRules";
@@ -13,6 +14,18 @@ const userTypes: UserType[] = [
   "Sole trader",
   "Small business owner",
   "Landlord",
+];
+
+const states: AustralianState[] = [
+  "NSW",
+  "VIC",
+  "QLD",
+  "WA",
+  "SA",
+  "TAS",
+  "ACT",
+  "NT",
+  "Not sure",
 ];
 
 function getPriorityStyle(priority: InsuranceSuggestion["priority"]) {
@@ -27,14 +40,24 @@ function getPriorityStyle(priority: InsuranceSuggestion["priority"]) {
   return "bg-blue-300/15 text-blue-100 border-blue-300/20";
 }
 
+function getScoreBarWidth(score: number) {
+  return `${Math.max(8, Math.min(score, 100))}%`;
+}
+
 export default function EstimateForm() {
   const [userType, setUserType] = useState<UserType>("Renter");
+  const [state, setState] = useState<AustralianState>("NSW");
   const [description, setDescription] = useState("");
   const [results, setResults] = useState<InsuranceSuggestion[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
 
   function handleGenerate() {
-    const suggestions = generateInsuranceSuggestions(userType, description);
+    const suggestions = generateInsuranceSuggestions(
+      userType,
+      description,
+      state
+    );
+
     setResults(suggestions);
     setHasGenerated(true);
   }
@@ -42,19 +65,41 @@ export default function EstimateForm() {
   return (
     <div className="space-y-6">
       <form className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
-        <label className="block">
-          <span className="text-sm font-medium text-blue-100">I am a...</span>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-sm font-medium text-blue-100">
+              I am a...
+            </span>
 
-          <select
-            value={userType}
-            onChange={(event) => setUserType(event.target.value as UserType)}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none"
-          >
-            {userTypes.map((type) => (
-              <option key={type}>{type}</option>
-            ))}
-          </select>
-        </label>
+            <select
+              value={userType}
+              onChange={(event) => setUserType(event.target.value as UserType)}
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none"
+            >
+              {userTypes.map((type) => (
+                <option key={type}>{type}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-blue-100">
+              State or territory
+            </span>
+
+            <select
+              value={state}
+              onChange={(event) =>
+                setState(event.target.value as AustralianState)
+              }
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none"
+            >
+              {states.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <label className="mt-5 block">
           <span className="text-sm font-medium text-blue-100">
@@ -62,10 +107,10 @@ export default function EstimateForm() {
           </span>
 
           <textarea
-            rows={6}
+            rows={7}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Example: I run a small design business from home, meet clients occasionally, own a laptop and camera gear, and rent my apartment in Sydney."
+            placeholder="Example: I run a small design business from home, meet clients, store customer information, use online payments, drive to meetings, and own a laptop and camera gear."
             className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none placeholder:text-blue-100/40"
           />
         </label>
@@ -80,30 +125,51 @@ export default function EstimateForm() {
 
         <p className="mt-4 text-xs leading-6 text-blue-100/50">
           This prototype provides general information only. It does not provide
-          personal financial advice, arrange insurance, or replace a licensed
-          broker or insurer.
+          personal financial advice, arrange insurance, compare the whole market,
+          or replace a licensed broker or insurer.
         </p>
       </form>
 
       {hasGenerated && (
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
-          <h3 className="text-2xl font-semibold">Your guidance preview</h3>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-300">
+                Guidance preview
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold">
+                {results.length > 0
+                  ? `${results.length} cover areas detected`
+                  : "More information needed"}
+              </h3>
+            </div>
+
+            <p className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-blue-100/70">
+              Jurisdiction: Australia {state !== "Not sure" ? `· ${state}` : ""}
+            </p>
+          </div>
 
           {results.length === 0 ? (
             <p className="mt-4 leading-7 text-blue-100/70">
-              We need a little more information to generate useful guidance. Try
-              describing your home, work, assets, vehicles, business activities,
-              travel, or valuables.
+              Try describing your home, work, assets, vehicles, business
+              activities, staff, travel, valuables, or location risks.
             </p>
           ) : (
-            <div className="mt-5 space-y-4">
+            <div className="mt-6 space-y-5">
               {results.map((result) => (
                 <div
                   key={result.title}
                   className="rounded-2xl border border-white/10 bg-[#0d1b2f] p-5"
                 >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <h4 className="text-xl font-semibold">{result.title}</h4>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm text-blue-100/50">
+                        {result.category}
+                      </p>
+                      <h4 className="mt-1 text-xl font-semibold">
+                        {result.title}
+                      </h4>
+                    </div>
 
                     <span
                       className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${getPriorityStyle(
@@ -114,12 +180,58 @@ export default function EstimateForm() {
                     </span>
                   </div>
 
-                  <p className="mt-3 leading-7 text-blue-100/75">
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-sm text-blue-100/60">
+                      <span>Relevance score</span>
+                      <span>{result.score}/100</span>
+                    </div>
+
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-blue-300"
+                        style={{ width: getScoreBarWidth(result.score) }}
+                      />
+                    </div>
+                  </div>
+
+                  <p className="mt-4 leading-7 text-blue-100/75">
                     {result.reason}
                   </p>
 
-                  <p className="mt-3 rounded-2xl bg-white/[0.05] p-4 text-sm leading-6 text-blue-100/65">
-                    {result.note}
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <div className="rounded-2xl bg-white/[0.05] p-4">
+                      <p className="text-sm font-semibold text-blue-100">
+                        Signals detected
+                      </p>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {result.signals.map((signal) => (
+                          <span
+                            key={signal}
+                            className="rounded-full border border-white/10 px-3 py-1 text-xs text-blue-100/70"
+                          >
+                            {signal}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-white/[0.05] p-4">
+                      <p className="text-sm font-semibold text-blue-100">
+                        Possible next steps
+                      </p>
+
+                      <ul className="mt-3 space-y-2 text-sm leading-6 text-blue-100/70">
+                        {result.nextSteps.map((step) => (
+                          <li key={step}>• {step}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 text-xs leading-6 text-blue-100/45">
+                    Confidence: {result.confidence}. This is a rules-based
+                    prototype and should be treated as general guidance only.
                   </p>
                 </div>
               ))}
