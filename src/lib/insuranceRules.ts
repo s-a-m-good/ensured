@@ -16,6 +16,16 @@ export type AustralianState =
   | "NT"
   | "Not sure";
 
+export type ScenarioKey =
+  | "worksFromHome"
+  | "meetsClients"
+  | "storesCustomerData"
+  | "ownsValuables"
+  | "usesVehicle"
+  | "hasStaff"
+  | "travels"
+  | "floodStormBushfire";
+
 export type InsuranceSuggestion = {
   title: string;
   category: string;
@@ -65,8 +75,6 @@ const keywordGroups = {
   ],
   staff: ["employee", "employees", "staff", "worker", "workers", "contractor"],
   tools: ["tools", "equipment", "machinery", "stock", "inventory"],
-  property: ["house", "apartment", "unit", "home", "building", "property"],
-  rent: ["rent", "renter", "rental", "tenant", "lease"],
   floodStormBushfire: [
     "flood",
     "storm",
@@ -85,6 +93,10 @@ function includesAny(text: string, words: string[]) {
 
 function matchedSignals(text: string, words: string[]) {
   return words.filter((word) => text.includes(word));
+}
+
+function hasScenario(scenarios: ScenarioKey[], scenario: ScenarioKey) {
+  return scenarios.includes(scenario);
 }
 
 function priorityFromScore(score: number): InsuranceSuggestion["priority"] {
@@ -122,7 +134,8 @@ function createSuggestion(params: {
 export function generateInsuranceSuggestions(
   userType: UserType,
   description: string,
-  state: AustralianState
+  state: AustralianState,
+  scenarios: ScenarioKey[]
 ): InsuranceSuggestion[] {
   const text = description.toLowerCase();
   const suggestions: InsuranceSuggestion[] = [];
@@ -130,16 +143,45 @@ export function generateInsuranceSuggestions(
   const isBusiness =
     userType === "Sole trader" || userType === "Small business owner";
 
+  const usesVehicle =
+    includesAny(text, keywordGroups.car) || hasScenario(scenarios, "usesVehicle");
+
+  const ownsValuables =
+    includesAny(text, keywordGroups.valuables) ||
+    hasScenario(scenarios, "ownsValuables");
+
+  const hasCyberRisk =
+    includesAny(text, keywordGroups.cyber) ||
+    hasScenario(scenarios, "storesCustomerData");
+
+  const meetsClients =
+    includesAny(text, keywordGroups.clients) ||
+    hasScenario(scenarios, "meetsClients");
+
+  const providesAdvice =
+    includesAny(text, keywordGroups.advice) || isBusiness;
+
+  const hasStaff =
+    includesAny(text, keywordGroups.staff) || hasScenario(scenarios, "hasStaff");
+
+  const travels =
+    includesAny(text, keywordGroups.travel) || hasScenario(scenarios, "travels");
+
+  const hasNaturalHazardSignal =
+    includesAny(text, keywordGroups.floodStormBushfire) ||
+    hasScenario(scenarios, "floodStormBushfire");
+
   if (userType === "Renter") {
     suggestions.push(
       createSuggestion({
         title: "Contents insurance",
         category: "Personal property",
-        score: includesAny(text, keywordGroups.valuables) ? 88 : 75,
+        score: ownsValuables ? 88 : 75,
         reason:
           "Contents insurance may be relevant because renters usually do not own the building, but may still need protection for belongings inside the property.",
         signals: [
           "Renter profile",
+          ...(ownsValuables ? ["Valuables or personal items"] : []),
           ...matchedSignals(text, keywordGroups.valuables),
         ],
         nextSteps: [
@@ -156,11 +198,12 @@ export function generateInsuranceSuggestions(
       createSuggestion({
         title: "Home and contents insurance",
         category: "Property",
-        score: includesAny(text, keywordGroups.floodStormBushfire) ? 92 : 82,
+        score: hasNaturalHazardSignal ? 92 : 82,
         reason:
           "Home and contents insurance may be relevant because homeowners may need cover for both the building and belongings inside it.",
         signals: [
           "Homeowner profile",
+          ...(hasNaturalHazardSignal ? ["Natural hazard signal"] : []),
           ...matchedSignals(text, keywordGroups.floodStormBushfire),
         ],
         nextSteps: [
@@ -190,17 +233,19 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (isBusiness) {
-    const clientSignals = matchedSignals(text, keywordGroups.clients);
-
+  if (isBusiness || meetsClients) {
     suggestions.push(
       createSuggestion({
         title: "Public liability insurance",
         category: "Business liability",
-        score: clientSignals.length > 0 ? 90 : 78,
+        score: meetsClients ? 90 : 78,
         reason:
           "Public liability may be relevant where a business interacts with clients, customers, suppliers, or members of the public.",
-        signals: ["Business profile", ...clientSignals],
+        signals: [
+          ...(isBusiness ? ["Business profile"] : []),
+          ...(meetsClients ? ["Meets clients or customers"] : []),
+          ...matchedSignals(text, keywordGroups.clients),
+        ],
         nextSteps: [
           "Check whether clients, landlords, markets, venues, or contracts require evidence of cover.",
           "Think about whether you meet people at home, on site, in public, or at client premises.",
@@ -210,19 +255,18 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (isBusiness || includesAny(text, keywordGroups.advice)) {
-    const adviceSignals = matchedSignals(text, keywordGroups.advice);
-
+  if (providesAdvice) {
     suggestions.push(
       createSuggestion({
         title: "Professional indemnity insurance",
         category: "Professional services",
-        score: adviceSignals.length > 0 ? 88 : 58,
+        score: includesAny(text, keywordGroups.advice) ? 88 : 60,
         reason:
           "Professional indemnity may be relevant when a person or business provides advice, designs, consulting, or professional services.",
-        signals: isBusiness
-          ? ["Business profile", ...adviceSignals]
-          : adviceSignals,
+        signals: [
+          ...(isBusiness ? ["Business profile"] : []),
+          ...matchedSignals(text, keywordGroups.advice),
+        ],
         nextSteps: [
           "Check whether your work involves advice, designs, recommendations, or professional judgement.",
           "Review client contracts for minimum insurance requirements.",
@@ -232,17 +276,20 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (includesAny(text, keywordGroups.cyber)) {
-    const signals = matchedSignals(text, keywordGroups.cyber);
-
+  if (hasCyberRisk) {
     suggestions.push(
       createSuggestion({
         title: "Cyber insurance",
         category: "Digital risk",
-        score: isBusiness ? 76 : 55,
+        score: isBusiness ? 78 : 58,
         reason:
           "Cyber insurance may be relevant if you take online payments, store customer data, run a website, or rely on digital systems.",
-        signals,
+        signals: [
+          ...(hasScenario(scenarios, "storesCustomerData")
+            ? ["Stores customer data"]
+            : []),
+          ...matchedSignals(text, keywordGroups.cyber),
+        ],
         nextSteps: [
           "Check whether you store personal information, payment details, or client files.",
           "Review whether cover includes scams, data breaches, recovery costs, and interruption.",
@@ -252,9 +299,7 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (includesAny(text, keywordGroups.car)) {
-    const signals = matchedSignals(text, keywordGroups.car);
-
+  if (usesVehicle) {
     suggestions.push(
       createSuggestion({
         title: "Car or commercial motor insurance",
@@ -262,7 +307,10 @@ export function generateInsuranceSuggestions(
         score: isBusiness ? 74 : 62,
         reason:
           "Vehicle insurance may be relevant if you use a car, van, ute, or other vehicle personally or for work.",
-        signals,
+        signals: [
+          ...(hasScenario(scenarios, "usesVehicle") ? ["Uses a vehicle"] : []),
+          ...matchedSignals(text, keywordGroups.car),
+        ],
         nextSteps: [
           "Check whether the vehicle is used for personal use, business use, deliveries, or client visits.",
           "Business use may need to be disclosed to the insurer.",
@@ -272,9 +320,7 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (includesAny(text, keywordGroups.valuables)) {
-    const signals = matchedSignals(text, keywordGroups.valuables);
-
+  if (ownsValuables) {
     suggestions.push(
       createSuggestion({
         title: "Portable valuables cover",
@@ -282,7 +328,12 @@ export function generateInsuranceSuggestions(
         score: 68,
         reason:
           "Portable valuables may not be fully covered away from home under a standard contents policy.",
-        signals,
+        signals: [
+          ...(hasScenario(scenarios, "ownsValuables")
+            ? ["Owns valuables"]
+            : []),
+          ...matchedSignals(text, keywordGroups.valuables),
+        ],
         nextSteps: [
           "Check item limits for phones, laptops, cameras, bikes, watches, and jewellery.",
           "Keep receipts, serial numbers, photos, and valuations.",
@@ -292,29 +343,7 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (includesAny(text, keywordGroups.tools)) {
-    const signals = matchedSignals(text, keywordGroups.tools);
-
-    suggestions.push(
-      createSuggestion({
-        title: "Tools, equipment, or stock cover",
-        category: "Business assets",
-        score: isBusiness ? 78 : 58,
-        reason:
-          "Tools, equipment, stock, or machinery may need separate cover from personal contents insurance.",
-        signals,
-        nextSteps: [
-          "List tools, equipment, stock, and estimated replacement values.",
-          "Check whether items are covered at home, in transit, on site, or in a vehicle.",
-          "Keep proof of ownership and photos of important items.",
-        ],
-      })
-    );
-  }
-
-  if (includesAny(text, keywordGroups.staff)) {
-    const signals = matchedSignals(text, keywordGroups.staff);
-
+  if (hasStaff) {
     suggestions.push(
       createSuggestion({
         title: "Workers compensation considerations",
@@ -322,7 +351,10 @@ export function generateInsuranceSuggestions(
         score: 88,
         reason:
           "If a business has workers, employees, or some contractors, workers compensation obligations may become relevant.",
-        signals,
+        signals: [
+          ...(hasScenario(scenarios, "hasStaff") ? ["Has staff"] : []),
+          ...matchedSignals(text, keywordGroups.staff),
+        ],
         nextSteps: [
           "Check the rules for your state or territory.",
           "Clarify whether people are employees, contractors, subcontractors, or casual workers.",
@@ -332,9 +364,7 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (includesAny(text, keywordGroups.travel)) {
-    const signals = matchedSignals(text, keywordGroups.travel);
-
+  if (travels) {
     suggestions.push(
       createSuggestion({
         title: "Travel insurance",
@@ -342,7 +372,10 @@ export function generateInsuranceSuggestions(
         score: 55,
         reason:
           "Travel insurance may be relevant when travelling interstate or overseas.",
-        signals,
+        signals: [
+          ...(hasScenario(scenarios, "travels") ? ["Travels"] : []),
+          ...matchedSignals(text, keywordGroups.travel),
+        ],
         nextSteps: [
           "Check medical, cancellation, luggage, rental vehicle excess, and activity exclusions.",
           "Review pre-existing condition rules where relevant.",
@@ -352,10 +385,7 @@ export function generateInsuranceSuggestions(
     );
   }
 
-  if (
-    state !== "Not sure" &&
-    includesAny(text, keywordGroups.floodStormBushfire)
-  ) {
+  if (state !== "Not sure" && hasNaturalHazardSignal) {
     suggestions.push(
       createSuggestion({
         title: "Location and natural hazard review",
@@ -365,6 +395,9 @@ export function generateInsuranceSuggestions(
           "Location-related risks such as flood, storm, bushfire, hail, or cyclone can affect which policy features may matter.",
         signals: [
           state,
+          ...(hasScenario(scenarios, "floodStormBushfire")
+            ? ["Flood, storm, or bushfire concern"]
+            : []),
           ...matchedSignals(text, keywordGroups.floodStormBushfire),
         ],
         nextSteps: [

@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import CoverageReport from "@/components/CoverageReport";
+import {
+  matchCoverageOptions,
+  type CoverageMatch,
+} from "@/lib/coverageMatcher";
 import {
   generateInsuranceSuggestions,
   type AustralianState,
   type InsuranceSuggestion,
+  type ScenarioKey,
   type UserType,
 } from "@/lib/insuranceRules";
 
@@ -28,6 +34,17 @@ const states: AustralianState[] = [
   "Not sure",
 ];
 
+const scenarioOptions: { key: ScenarioKey; label: string }[] = [
+  { key: "worksFromHome", label: "Works from home" },
+  { key: "meetsClients", label: "Meets clients/customers" },
+  { key: "storesCustomerData", label: "Stores customer data" },
+  { key: "ownsValuables", label: "Owns valuables/equipment" },
+  { key: "usesVehicle", label: "Uses a vehicle" },
+  { key: "hasStaff", label: "Has staff or contractors" },
+  { key: "travels", label: "Travels" },
+  { key: "floodStormBushfire", label: "Flood/storm/bushfire concern" },
+];
+
 function getPriorityStyle(priority: InsuranceSuggestion["priority"]) {
   if (priority === "High") {
     return "bg-red-400/15 text-red-100 border-red-300/20";
@@ -48,17 +65,31 @@ export default function EstimateForm() {
   const [userType, setUserType] = useState<UserType>("Renter");
   const [state, setState] = useState<AustralianState>("NSW");
   const [description, setDescription] = useState("");
+  const [selectedScenarios, setSelectedScenarios] = useState<ScenarioKey[]>([]);
   const [results, setResults] = useState<InsuranceSuggestion[]>([]);
+  const [coverageMatches, setCoverageMatches] = useState<CoverageMatch[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
+
+  function toggleScenario(scenario: ScenarioKey) {
+    setSelectedScenarios((current) =>
+      current.includes(scenario)
+        ? current.filter((item) => item !== scenario)
+        : [...current, scenario]
+    );
+  }
 
   function handleGenerate() {
     const suggestions = generateInsuranceSuggestions(
       userType,
       description,
-      state
+      state,
+      selectedScenarios
     );
 
+    const matches = matchCoverageOptions(suggestions);
+
     setResults(suggestions);
+    setCoverageMatches(matches);
     setHasGenerated(true);
   }
 
@@ -101,6 +132,33 @@ export default function EstimateForm() {
           </label>
         </div>
 
+        <div className="mt-5">
+          <p className="text-sm font-medium text-blue-100">
+            Select common scenarios
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {scenarioOptions.map((scenario) => {
+              const isSelected = selectedScenarios.includes(scenario.key);
+
+              return (
+                <button
+                  key={scenario.key}
+                  type="button"
+                  onClick={() => toggleScenario(scenario.key)}
+                  className={`rounded-full border px-4 py-2 text-sm transition ${
+                    isSelected
+                      ? "border-blue-300 bg-blue-300 text-[#07111f]"
+                      : "border-white/10 bg-white/[0.06] text-blue-100/75 hover:bg-white/[0.1]"
+                  }`}
+                >
+                  {scenario.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <label className="mt-5 block">
           <span className="text-sm font-medium text-blue-100">
             Describe your situation
@@ -137,6 +195,7 @@ export default function EstimateForm() {
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-300">
                 Guidance preview
               </p>
+
               <h3 className="mt-2 text-2xl font-semibold">
                 {results.length > 0
                   ? `${results.length} cover areas detected`
@@ -166,6 +225,7 @@ export default function EstimateForm() {
                       <p className="text-sm text-blue-100/50">
                         {result.category}
                       </p>
+
                       <h4 className="mt-1 text-xl font-semibold">
                         {result.title}
                       </h4>
@@ -239,6 +299,8 @@ export default function EstimateForm() {
           )}
         </div>
       )}
+
+      {hasGenerated && <CoverageReport matches={coverageMatches} />}
     </div>
   );
 }

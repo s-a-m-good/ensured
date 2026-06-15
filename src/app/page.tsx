@@ -1,3 +1,4 @@
+import SiteHeader from "@/components/SiteHeader";
 import EstimateForm from "@/components/EstimateForm";
 const features = [
   {
@@ -67,32 +68,7 @@ const coverTypes = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#07111f] text-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07111f]/80 backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="#home" className="text-2xl font-bold tracking-tight">
-            Ensured
-          </a>
-
-          <div className="hidden items-center gap-8 text-sm text-blue-100/80 md:flex">
-            <a href="#features" className="transition hover:text-white">
-              Features
-            </a>
-            <a href="#how-it-works" className="transition hover:text-white">
-              How it works
-            </a>
-            <a href="#estimate" className="transition hover:text-white">
-              Estimate
-            </a>
-          </div>
-
-          <a
-            href="#estimate"
-            className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#07111f] transition hover:scale-105 hover:bg-blue-100"
-          >
-            Start estimate
-          </a>
-        </nav>
-      </header>
+      <SiteHeader />
 
       <section
         id="home"
