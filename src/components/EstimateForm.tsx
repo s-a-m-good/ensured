@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import CoverageReport from "@/components/CoverageReport";
+import SaveCoverageReportButton from "@/components/SaveCoverageReportButton";
 import {
   matchCoverageOptions,
   type CoverageMatch,
@@ -301,6 +302,17 @@ export default function EstimateForm() {
       )}
 
       {hasGenerated && <CoverageReport matches={coverageMatches} />}
+
+      {hasGenerated && (
+  <SaveCoverageReportButton
+    userType={userType}
+    state={state}
+    description={description}
+    selectedScenarios={selectedScenarios}
+    results={results}
+    coverageMatches={coverageMatches}
+  />
+)}
     </div>
   );
 }
