@@ -1,65 +1,316 @@
-import Image from "next/image";
+const features = [
+  {
+    title: "Insurance guidance",
+    description:
+      "Describe your situation in plain English and see which types of cover may be relevant.",
+  },
+  {
+    title: "Built for Australia first",
+    description:
+      "Designed first for Australian individuals, renters, homeowners, sole traders, and small businesses.",
+  },
+  {
+    title: "Policy vault",
+    description:
+      "Eventually store policies, renewal dates, claim documents, receipts, valuations, and certificates.",
+  },
+  {
+    title: "Risk alerts",
+    description:
+      "Receive prompts when renewals, location risks, business changes, or life events may affect your cover.",
+  },
+  {
+    title: "Explainable results",
+    description:
+      "Outputs should explain why a cover type may matter, rather than just pushing a quote.",
+  },
+  {
+    title: "Licensed handoff later",
+    description:
+      "When regulated advice or arranging cover is needed, Ensured can later connect users to licensed providers.",
+  },
+];
+
+const steps = [
+  {
+    number: "01",
+    title: "Tell us your situation",
+    description:
+      "Answer simple questions about your home, work, assets, business, travel, and risks.",
+  },
+  {
+    number: "02",
+    title: "Understand possible cover",
+    description:
+      "See insurance categories that may be relevant, with plain-language explanations.",
+  },
+  {
+    number: "03",
+    title: "Organise over time",
+    description:
+      "Build a reusable insurance profile, track documents, and manage renewals in one place.",
+  },
+];
+
+const coverTypes = [
+  "Home & contents",
+  "Car insurance",
+  "Landlord insurance",
+  "Public liability",
+  "Professional indemnity",
+  "Cyber insurance",
+  "Business interruption",
+  "Travel insurance",
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-screen bg-[#07111f] text-white">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07111f]/80 backdrop-blur-xl">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+          <a href="#home" className="text-2xl font-bold tracking-tight">
+            Ensured
+          </a>
+
+          <div className="hidden items-center gap-8 text-sm text-blue-100/80 md:flex">
+            <a href="#features" className="transition hover:text-white">
+              Features
+            </a>
+            <a href="#how-it-works" className="transition hover:text-white">
+              How it works
+            </a>
+            <a href="#estimate" className="transition hover:text-white">
+              Estimate
+            </a>
+          </div>
+
+          <a
+            href="#estimate"
+            className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#07111f] transition hover:scale-105 hover:bg-blue-100"
+          >
+            Start estimate
+          </a>
+        </nav>
+      </header>
+
+      <section
+        id="home"
+        className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-24 md:grid-cols-2 md:py-32"
+      >
+        <div>
+          <div className="mb-6 inline-flex rounded-full border border-blue-300/30 bg-blue-400/10 px-4 py-2 text-sm text-blue-100">
+            Australian-first insurance intelligence
+          </div>
+
+          <h1 className="max-w-4xl text-5xl font-bold tracking-tight md:text-7xl">
+            Understand your insurance before you buy it.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
+
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-blue-100/80">
+            Ensured helps individuals and small businesses describe their
+            situation, understand which types of insurance may be relevant, and
+            organise cover over time.
+          </p>
+
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="#estimate"
+              className="rounded-full bg-blue-400 px-7 py-4 text-center font-semibold text-[#07111f] transition hover:scale-105 hover:bg-blue-300"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
+              Try the first estimate
+            </a>
+
             <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="#features"
+              className="rounded-full border border-white/20 px-7 py-4 text-center font-semibold text-white transition hover:bg-white/10"
             >
-              Learning
-            </a>{" "}
-            center.
+              Explore features
+            </a>
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
+          <div className="rounded-[1.5rem] bg-[#0d1b2f] p-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <p className="text-sm text-blue-100/60">Profile preview</p>
+                <h2 className="text-2xl font-semibold">Sole trader</h2>
+              </div>
+
+              <div className="rounded-full bg-green-400/20 px-3 py-1 text-sm text-green-200">
+                Draft
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div className="rounded-2xl bg-white/5 p-4">
+                <p className="text-sm text-blue-100/60">Situation</p>
+                <p className="mt-1 text-white">
+                  Runs a small business from home, meets clients, owns a laptop,
+                  stores customer information, and travels locally.
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white/5 p-4">
+                <p className="text-sm text-blue-100/60">Cover types that may matter</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-blue-400/20 px-3 py-1 text-sm text-blue-100">
+                    Public liability
+                  </span>
+                  <span className="rounded-full bg-blue-400/20 px-3 py-1 text-sm text-blue-100">
+                    Professional indemnity
+                  </span>
+                  <span className="rounded-full bg-blue-400/20 px-3 py-1 text-sm text-blue-100">
+                    Cyber
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 p-4">
+                <p className="text-sm font-medium text-yellow-100">
+                  Guidance only
+                </p>
+                <p className="mt-1 text-sm leading-6 text-yellow-50/80">
+                  Ensured can explain what may be relevant, but it does not
+                  provide personal financial advice, arrange insurance, or
+                  replace a licensed broker or insurer.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" className="mx-auto max-w-7xl px-6 py-20">
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-300">
+            Features
+          </p>
+
+          <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
+            A smarter insurance layer, not just another quote site.
+          </h2>
+
+          <p className="mt-5 text-lg leading-8 text-blue-100/70">
+            Ensured is being built to help users understand, monitor, and
+            organise their insurance position over time.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 transition hover:-translate-y-1 hover:bg-white/[0.09]"
+            >
+              <h3 className="text-xl font-semibold">{feature.title}</h3>
+              <p className="mt-3 leading-7 text-blue-100/70">
+                {feature.description}
+              </p>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20">
+        <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 md:p-12">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-300">
+            How it works
+          </p>
+
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {steps.map((step) => (
+              <div key={step.number}>
+                <p className="text-5xl font-bold text-blue-300/40">
+                  {step.number}
+                </p>
+                <h3 className="mt-5 text-2xl font-semibold">{step.title}</h3>
+                <p className="mt-3 leading-7 text-blue-100/70">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="estimate" className="mx-auto max-w-7xl px-6 py-20">
+        <div className="grid gap-10 md:grid-cols-[1fr_0.9fr]">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-300">
+              First estimate
+            </p>
+
+            <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
+              Tell Ensured what your situation looks like.
+            </h2>
+
+            <p className="mt-5 text-lg leading-8 text-blue-100/70">
+              This is the first visual version. Next, we will make this form
+              generate basic insurance category suggestions.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              {coverTypes.map((type) => (
+                <span
+                  key={type}
+                  className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-blue-100/80"
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <form className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
+            <label className="block">
+              <span className="text-sm font-medium text-blue-100">
+                I am a...
+              </span>
+
+              <select className="mt-2 w-full rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none">
+                <option>Renter</option>
+                <option>Homeowner</option>
+                <option>Sole trader</option>
+                <option>Small business owner</option>
+                <option>Landlord</option>
+              </select>
+            </label>
+
+            <label className="mt-5 block">
+              <span className="text-sm font-medium text-blue-100">
+                Describe your situation
+              </span>
+
+              <textarea
+                rows={6}
+                placeholder="Example: I run a small design business from home, meet clients occasionally, own a laptop and camera gear, and rent my apartment in Sydney."
+                className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-[#0d1b2f] px-4 py-3 text-white outline-none placeholder:text-blue-100/40"
+              />
+            </label>
+
+            <button
+              type="button"
+              className="mt-6 w-full rounded-full bg-blue-400 px-6 py-4 font-semibold text-[#07111f] transition hover:scale-[1.02] hover:bg-blue-300"
+            >
+              Generate guidance preview
+            </button>
+
+            <p className="mt-4 text-xs leading-6 text-blue-100/50">
+              This prototype provides general information only. It does not
+              provide personal financial advice, arrange insurance, or replace a
+              licensed broker or insurer.
+            </p>
+          </form>
+        </div>
+      </section>
+
+      <footer className="border-t border-white/10 px-6 py-10">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-blue-100/50 md:flex-row">
+          <p>© 2026 Ensured. Australian-first insurance guidance platform.</p>
+          <p>Guidance only. Not financial product advice.</p>
+        </div>
+      </footer>
+    </main>
   );
 }
