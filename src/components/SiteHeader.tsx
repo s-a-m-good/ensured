@@ -6,6 +6,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Policies", href: "/policies" },
   { label: "Alerts", href: "/alerts" },
+  { label: "Account", href: "/account" },
   { label: "About", href: "/about" },
 ];
 
@@ -26,11 +27,11 @@ export default function SiteHeader() {
         </div>
 
         <Link
-          href="/estimate"
-          className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#07111f] transition hover:scale-105 hover:bg-blue-100"
-        >
-          Start estimate
-        </Link>
+  href="/auth"
+  className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#07111f] transition hover:scale-105 hover:bg-blue-100"
+>
+  Sign in
+</Link>
       </nav>
     </header>
   );
